@@ -5,6 +5,7 @@ import org.apache.kafka.clients.producer.internals.DefaultPartitioner;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import ro.mbe.custom.JsonSerializer;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -59,10 +60,10 @@ class Configuration {
         properties.put("bootstrap.servers", String.join(", ", KafkaServers));
 
         //  Serializer class for key
-        properties.put("key.serializer", StringSerializer.class.getName());
+        properties.put("key.serializer", JsonSerializer.class.getName());
 
         //  Serializer class for value
-        properties.put("value.serializer", StringSerializer.class.getName());
+        properties.put("value.serializer", JsonSerializer.class.getName());
 
         //  An id string to pass to the server when making requests
         properties.put("client.id", clientId);
@@ -124,10 +125,10 @@ class Configuration {
         properties.put("bootstrap.servers", String.join(", ", KafkaServers));
 
         //  Deserializer class for key
-        properties.put("key.deserializer", StringDeserializer.class.getName());
+        properties.put("key.deserializer", JsonSerializer.class.getName());
 
         //  Deserializer class for value
-        properties.put("value.deserializer", StringDeserializer.class.getName());
+        properties.put("value.deserializer", JsonSerializer.class.getName());
 
         //  An id string to pass to the server when making requests
         properties.put("client.id", clientId);

@@ -122,10 +122,10 @@ $KAFKA_HOME/bin/kafka-console-consumer.sh \
 ## 8. Run the ProducerApp
 ```shell
 mvn clean package
-mvn exec:java -Dexec.mainClass="de.mls.mbe.ProducerApp" -Dexec.args="my-producer-app"
+mvn exec:java -Dexec.mainClass="ro.mbe.ProducerApp" -Dexec.args="my-producer-app"
 ```
 ## 9. Run the ConsumerApp
 ```shell
 mvn clean package
-mvn exec:java -Dexec.mainClass="de.mls.mbe.ConsumerApp" -Dexec.args="my-consumer-app"
+mvn exec:java -Dexec.mainClass="ro.mbe.ConsumerApp" -Dexec.args="my-consumer-app"
 ```
