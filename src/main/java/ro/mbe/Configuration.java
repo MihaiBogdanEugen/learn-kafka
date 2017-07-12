@@ -5,6 +5,8 @@ import org.apache.kafka.clients.producer.internals.DefaultPartitioner;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import ro.mbe.custom.CustomPartitioner;
+import ro.mbe.custom.JsonDeserializer;
 import ro.mbe.custom.JsonSerializer;
 
 import java.util.*;
@@ -76,7 +78,7 @@ class Configuration {
         properties.put("compression.type", "none");
 
         //  Partitioner class that implements the Partitioner interface
-        properties.put("partitioner.class", DefaultPartitioner.class.getName());
+        properties.put("partitioner.class", CustomPartitioner.class.getName());
 
 
         /** BATCHING SETTINGS **/
@@ -125,10 +127,10 @@ class Configuration {
         properties.put("bootstrap.servers", String.join(", ", KafkaServers));
 
         //  Deserializer class for key
-        properties.put("key.deserializer", JsonSerializer.class.getName());
+        properties.put("key.deserializer", JsonDeserializer.class.getName());
 
         //  Deserializer class for value
-        properties.put("value.deserializer", JsonSerializer.class.getName());
+        properties.put("value.deserializer", JsonDeserializer.class.getName());
 
         //  An id string to pass to the server when making requests
         properties.put("client.id", clientId);
