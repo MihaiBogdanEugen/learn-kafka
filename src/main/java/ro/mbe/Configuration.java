@@ -1,10 +1,7 @@
 package ro.mbe;
 
 import org.apache.kafka.clients.consumer.RangeAssignor;
-import org.apache.kafka.clients.producer.internals.DefaultPartitioner;
 import org.apache.kafka.common.TopicPartition;
-import org.apache.kafka.common.serialization.StringDeserializer;
-import org.apache.kafka.common.serialization.StringSerializer;
 import ro.mbe.custom.CustomPartitioner;
 import ro.mbe.custom.JsonDeserializer;
 import ro.mbe.custom.JsonSerializer;
