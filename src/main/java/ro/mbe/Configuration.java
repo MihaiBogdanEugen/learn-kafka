@@ -5,6 +5,7 @@ import org.apache.kafka.clients.producer.internals.DefaultPartitioner;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import ro.mbe.custom.CustomPartitioner;
 import ro.mbe.custom.JsonSerializer;
 
 import java.util.*;
@@ -76,7 +77,7 @@ class Configuration {
         properties.put("compression.type", "none");
 
         //  Partitioner class that implements the Partitioner interface
-        properties.put("partitioner.class", DefaultPartitioner.class.getName());
+        properties.put("partitioner.class", CustomPartitioner.class.getName());
 
 
         /** BATCHING SETTINGS **/
