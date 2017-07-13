@@ -41,6 +41,10 @@ $KAFKA_HOME/bin/kafka-server-start.sh $KAFKA_HOME/config/server-102.properties
 ```shell
 $KAFKA_HOME/bin/kafka-server-start.sh $KAFKA_HOME/config/server-103.properties
 ```
+#### 4.4 Stop all nodes
+```shell
+$KAFKA_HOME/bin/kafka-server-stop.sh
+```
 ## 5. Topics
 #### 5.1. Create topic 'sensors.first' with 1 partitions and a replication factor of 3
 ```shell
