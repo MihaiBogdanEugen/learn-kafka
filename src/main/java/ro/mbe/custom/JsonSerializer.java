@@ -9,34 +9,26 @@ import java.util.Map;
 
 public class JsonSerializer<T> implements Serializer<T> {
 
-    private static final Gson Gson = new Gson();
-    private String encoding = "UTF8";
-
-    @Override
-    public void configure(Map<String, ?> configs, boolean isKey) {
-
-        Object encodingValue = configs.get(isKey ? "key.serializer.encoding" : "value.serializer.encoding");
-
-        if (encodingValue == null) {
-            encodingValue = configs.get("serializer.encoding");
-        }
-
-        if (encodingValue != null && encodingValue instanceof String) {
-            this.encoding = (String) encodingValue;
-        }
-    }
+    private static final Gson GSON = new Gson();
+    private static final String ENCODING = "UTF8";
 
     @Override
     public byte[] serialize(String topic, T data) {
 
-        if (data == null)
+        if (data == null) {
             return new byte[0];
+        }
 
         try {
-            return Gson.toJson(data).getBytes(this.encoding);
+            return GSON.toJson(data).getBytes(ENCODING);
         } catch (UnsupportedEncodingException e) {
-            throw new SerializationException("Error when serializing JSON string to byte[] due to unsupported encoding: " + this.encoding);
+            throw new SerializationException("Error when serializing JSON string to byte[] due to unsupported UTF-8 encoding");
         }
+    }
+
+    @Override
+    public void configure(Map<String, ?> configs, boolean isKey) {
+        //do nothing
     }
 
     @Override
