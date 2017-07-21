@@ -12,7 +12,7 @@ public class ProducerApp {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProducerApp.class);
 
     private static final String PatternMessage = "Message #%d: %s, sent at %tF %tT";
-    private static final String PatternRecordAckCallback = "Message with offset %d, sent to topic %s, on partition %d";
+    private static final String PatternRecordSent = "Message with offset %d, sent to topic %s, on partition %d";
 
     public static void main(String[] args) {
 
@@ -27,30 +27,19 @@ public class ProducerApp {
                 for (Map.Entry<String, List<Integer>> entry : Configuration.TopicsAndPartitions.entrySet()) {
 
                     String topic = entry.getKey();
-                    List<Integer> partitions = entry.getValue();
+                    int noOfPartitions = entry.getValue().size();
+
                     Date now = new Date();
                     String message = String.format(PatternMessage, index, UUID.randomUUID().toString(), now, now);
-                    ProducerRecord<String, String> record;
 
-                    if (partitions.size() == 1) {
-
-                        record = new ProducerRecord<>(topic, null, message);
-
-                    } else {
-
-                        Integer noOfPartitions = partitions.size();
-                        Integer partition = index % noOfPartitions;
-                        if (!partitions.contains(partition)) {
-                            partition = partitions.get(noOfPartitions - 1);
-                        }
-
-                        record = new ProducerRecord<>(topic, partition, null, message);
-                    }
+                    ProducerRecord<String, String> record = (noOfPartitions == 1)
+                            ? new ProducerRecord<>(topic, null, message)
+                            : new ProducerRecord<>(topic, index % noOfPartitions, null, message);
 
                     producer.send(record, (metadata, error) -> {
 
                         if (error == null) {
-                            LOGGER.info(String.format(PatternRecordAckCallback, metadata.offset(), metadata.topic(), metadata.partition()));
+                            LOGGER.info(String.format(PatternRecordSent, metadata.offset(), metadata.topic(), metadata.partition()));
                         } else {
                             LOGGER.error(error.getMessage(), error);
                         }
