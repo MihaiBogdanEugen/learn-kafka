@@ -5,52 +5,38 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ro.mbe.custom.Message;
+
 import java.util.*;
 
 public class ProducerApp {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProducerApp.class);
 
-    private static final String PatternMessage = "Message #%d: %s, sent at %tF %tT";
-    private static final String PatternRecordAckCallback = "Message with offset %d, sent to topic %s, on partition %d";
+    private static final String PatternRecordSent = "Message with offset %d, sent to topic %s, on partition %d";
 
     public static void main(String[] args) {
 
         String clientId = (args != null && args.length > 0 && args[0].length() > 0) ? args[0] : UUID.randomUUID().toString();
-
         Properties properties = Configuration.getProducerConfig(clientId);
 
-        try (KafkaProducer<String, String> producer = new KafkaProducer<>(properties)) {
-
+        try (KafkaProducer<String, Message> producer = new KafkaProducer<>(properties)) {
             for (int index = 0; index < Configuration.NoOfRecordsToSend; index ++) {
-
                 for (Map.Entry<String, List<Integer>> entry : Configuration.TopicsAndPartitions.entrySet()) {
 
                     String topic = entry.getKey();
-                    List<Integer> partitions = entry.getValue();
-                    Date now = new Date();
-                    String message = String.format(PatternMessage, index, UUID.randomUUID().toString(), now, now);
-                    ProducerRecord<String, String> record;
+                    Integer partition = index % entry.getValue().size();
+                    String key = "default";
+                    Message value = new Message(index, UUID.randomUUID().toString());
 
-                    if (partitions.size() == 1) {
-
-                        record = new ProducerRecord<>(topic, null, message);
-
-                    } else {
-
-                        Integer noOfPartitions = partitions.size();
-                        Integer partition = index % noOfPartitions;
-                        if (!partitions.contains(partition)) {
-                            partition = partitions.get(noOfPartitions - 1);
-                        }
-
-                        record = new ProducerRecord<>(topic, partition, null, message);
-                    }
+                    ProducerRecord<String, Message> record = (entry.getValue().size() == 1)
+                            ? new ProducerRecord<>(topic, key, value)
+                            : new ProducerRecord<>(topic, partition, key, value);
 
                     producer.send(record, (metadata, error) -> {
 
                         if (error == null) {
-                            LOGGER.info(String.format(PatternRecordAckCallback, metadata.offset(), metadata.topic(), metadata.partition()));
+                            LOGGER.info(String.format(PatternRecordSent, metadata.offset(), metadata.topic(), metadata.partition()));
                         } else {
                             LOGGER.error(error.getMessage(), error);
                         }

@@ -1,6 +1,6 @@
 # Learning Kafka
 ## 0. Prerequisites
-- Oracle JDK 8u131
+- Oracle JDK 8u141
 - Apache Maven 3.5.0
 - Scala 2.12.2
 ## 1. Installation
