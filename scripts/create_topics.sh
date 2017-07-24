@@ -7,4 +7,4 @@ ${KAFKA_HOME}/bin/kafka-topics.sh --create --zookeeper localhost:2181 --topic se
 
 ${KAFKA_HOME}/bin/kafka-topics.sh --create --zookeeper localhost:2181 --topic sensors.second --replication-factor 3 --partitions 2
 
-${KAFKA_HOME}/bin/kafka-topics.sh --create --zookeeper localhost:2181 --topic sensors.thrid --replication-factor 3 --partitions 3
+${KAFKA_HOME}/bin/kafka-topics.sh --create --zookeeper localhost:2181 --topic sensors.third --replication-factor 3 --partitions 3
