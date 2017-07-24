@@ -2,9 +2,11 @@ package ro.mbe;
 
 import org.apache.kafka.clients.consumer.RangeAssignor;
 import org.apache.kafka.common.TopicPartition;
-import ro.mbe.custom.CustomPartitioner;
-import ro.mbe.custom.JsonDeserializer;
-import ro.mbe.custom.JsonSerializer;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
+import org.apache.kafka.clients.producer.internals.DefaultPartitioner;
+import ro.mbe.custom.MessageJsonDeserializer;
+import ro.mbe.custom.MessageJsonSerializer;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -59,10 +61,10 @@ class Configuration {
         properties.put(KafkaConfig.Producer.BOOTSTRAP_SERVERS, String.join(", ", KafkaServers));
 
         //  Serializer class for key
-        properties.put(KafkaConfig.Producer.KEY_SERIALIZER, JsonSerializer.class.getName());
+        properties.put(KafkaConfig.Producer.KEY_SERIALIZER, StringSerializer.class.getName());
 
         //  Serializer class for value
-        properties.put(KafkaConfig.Producer.VALUE_SERIALIZER, JsonSerializer.class.getName());
+        properties.put(KafkaConfig.Producer.VALUE_SERIALIZER, MessageJsonSerializer.class.getName());
 
         //  An id string to pass to the server when making requests
         properties.put(KafkaConfig.Producer.CLIENT_ID, clientId);
@@ -74,7 +76,7 @@ class Configuration {
         properties.put(KafkaConfig.Producer.COMPRESSION_TYPE, KafkaConfig.Producer.CompressionType.NONE);
 
         //  Partitioner class that implements the Partitioner interface
-        properties.put(KafkaConfig.Producer.PARTITIONER_CLASS, CustomPartitioner.class.getName());
+        properties.put(KafkaConfig.Producer.PARTITIONER_CLASS, DefaultPartitioner.class.getName());
 
 
         /** BATCHING SETTINGS **/
@@ -122,10 +124,10 @@ class Configuration {
         properties.put(KafkaConfig.Consumer.BOOTSTRAP_SERVERS, String.join(", ", KafkaServers));
 
         //  Deserializer class for key
-        properties.put(KafkaConfig.Consumer.KEY_DESERIALIZER, JsonDeserializer.class.getName());
+        properties.put(KafkaConfig.Consumer.KEY_DESERIALIZER, StringDeserializer.class.getName());
 
         //  Deserializer class for value
-        properties.put(KafkaConfig.Consumer.VALUE_DESERIALIZER, JsonDeserializer.class.getName());
+        properties.put(KafkaConfig.Consumer.VALUE_DESERIALIZER, MessageJsonDeserializer.class.getName());
 
         //  An id string to pass to the server when making requests
         properties.put(KafkaConfig.Consumer.CLIENT_ID, clientId);
