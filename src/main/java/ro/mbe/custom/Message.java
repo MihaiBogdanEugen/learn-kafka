@@ -17,6 +17,7 @@ public class Message {
     public Message(Integer index, String text) {
         this (index, text, new Date());
     }
+
     public Message(Integer index, String text, Date timestamp) {
 
         this.index = index;

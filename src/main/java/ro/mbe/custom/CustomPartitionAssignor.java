@@ -11,9 +11,9 @@ public class CustomPartitionAssignor extends AbstractPartitionAssignor {
     /**
      * Perform the group assignment given the partition counts and member subscriptions
      *
-     * @param partitionsPerTopic The number of partitions for each subscribed topic. Topics not in metadata will be excluded
-     *                           from this map.
-     * @param subscriptions      Map from the memberId to their respective topic subscription
+     * @param partitionsPerTopic The number of partitions for each subscribed topic.
+     *                           Topics not in metadata will be excluded from this map.
+     * @param subscriptions Map from the memberId to their respective topic subscription
      * @return Map from each member to the list of partitions assigned to them.
      */
     @Override
@@ -21,6 +21,11 @@ public class CustomPartitionAssignor extends AbstractPartitionAssignor {
         return null;
     }
 
+    /**
+     * Unique name for this assignor (e.g. "range" or "roundrobin" or "sticky")
+     *
+     * @return non-null unique name
+     */
     @Override
     public String name() {
         return "custom";
