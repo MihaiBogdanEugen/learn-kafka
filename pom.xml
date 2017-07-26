@@ -6,7 +6,7 @@
 
     <groupId>ro.mbe</groupId>
     <artifactId>learning-kafka</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
 
     <name>learning-kafka</name>
     <url>https://github.com/MihaiBogdanEugen/learning-kafka</url>
