@@ -26,7 +26,7 @@ public class ProducerApp {
 
                     String topic = entry.getKey();
                     Integer partition = index % entry.getValue().size();
-                    String key = "default";
+                    String key = UUID.randomUUID().toString();
                     Message value = new Message(index, UUID.randomUUID().toString());
 
                     ProducerRecord<String, Message> record = (entry.getValue().size() == 1)
