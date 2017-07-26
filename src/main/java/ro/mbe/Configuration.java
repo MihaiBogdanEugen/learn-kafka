@@ -5,8 +5,10 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.clients.producer.internals.DefaultPartitioner;
+import ro.mbe.custom.FirstGetsEverythingPartitionAssignor;
 import ro.mbe.custom.MessageJsonDeserializer;
 import ro.mbe.custom.MessageJsonSerializer;
+import ro.mbe.custom.SendToLastPartitioner;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,27 +21,22 @@ class Configuration {
             "localhost:19103"
     };
 
-    static final Map<String, List<Integer>> TopicsAndPartitions = new HashMap<>();
-
     static final int PollingTimeout = 1000;
     static final int NoOfRecordsToSend = 100;
     static final int NoOfRecordsToReceive = 100;
-    static final boolean UseSubsciptionMethod = false;
 
+    static final Map<String, List<Integer>> TopicsAndPartitions = new HashMap<>();
     static {
-
         TopicsAndPartitions.put("sensors.first", Arrays.asList(0));
         TopicsAndPartitions.put("sensors.second", Arrays.asList(0, 1));
         TopicsAndPartitions.put("sensors.third", Arrays.asList(0, 1, 2));
     }
 
     static Collection<String> getAllTopics() {
-
         return TopicsAndPartitions.keySet();
     }
 
     static Collection<TopicPartition> getAllPartitions() {
-
         return Configuration.TopicsAndPartitions.entrySet()
                 .stream()
                 .flatMap(entry -> entry.getValue()
@@ -51,8 +48,9 @@ class Configuration {
     /**
      * https://kafka.apache.org/documentation/#producerconfigs
      */
-    static Properties getProducerConfig(String clientId) {
 
+    static Properties getProducerConfig(String clientId, boolean useMessageJsonSerializer, boolean useSendToLastPartitioner) {
+  
         Properties properties = new Properties();
 
 
@@ -64,7 +62,9 @@ class Configuration {
         properties.put(KafkaConfig.Producer.KEY_SERIALIZER, StringSerializer.class.getName());
 
         //  Serializer class for value
-        properties.put(KafkaConfig.Producer.VALUE_SERIALIZER, MessageJsonSerializer.class.getName());
+        properties.put(KafkaConfig.Producer.VALUE_SERIALIZER, (useMessageJsonSerializer)
+                ? MessageJsonSerializer.class.getName()
+                : StringSerializer.class.getName());
 
         //  An id string to pass to the server when making requests
         properties.put(KafkaConfig.Producer.CLIENT_ID, clientId);
@@ -76,7 +76,9 @@ class Configuration {
         properties.put(KafkaConfig.Producer.COMPRESSION_TYPE, KafkaConfig.Producer.CompressionType.NONE);
 
         //  Partitioner class that implements the Partitioner interface
-        properties.put(KafkaConfig.Producer.PARTITIONER_CLASS, DefaultPartitioner.class.getName());
+        properties.put(KafkaConfig.Producer.PARTITIONER_CLASS, useSendToLastPartitioner
+                ? SendToLastPartitioner.class.getName()
+                : DefaultPartitioner.class.getName());
 
 
         /** BATCHING SETTINGS **/
@@ -108,13 +110,22 @@ class Configuration {
         //  The maximum number of unacknowledged requests the client will send on a single connection before blocking
         properties.put(KafkaConfig.Producer.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 5);
 
+
+        /** CUSTOM SETTINGS **/
+
+        //  Tells the MessageJsonSerializer what encoding to use for GSON serialization
+        properties.put(KafkaConfig.Producer.VALUE_SERIALIZER + ".encoding", "UTF8");
+      
+        //  Tells the default partitioner the default value for the partitioning operation
+        properties.put("default.partitioner.partition.value", 0);
+
         return properties;
     }
 
     /**
      * https://kafka.apache.org/documentation/#consumerconfigs
      */
-    static Properties getConsumerConfig(String clientId, String groupId) {
+    static Properties getConsumerConfig(String clientId, String groupId, boolean useMessageJsonSerializer, boolean useFirstGetsEverythingPartitionAssignor) {
 
         Properties properties = new Properties();
 
@@ -127,7 +138,9 @@ class Configuration {
         properties.put(KafkaConfig.Consumer.KEY_DESERIALIZER, StringDeserializer.class.getName());
 
         //  Deserializer class for value
-        properties.put(KafkaConfig.Consumer.VALUE_DESERIALIZER, MessageJsonDeserializer.class.getName());
+        properties.put(KafkaConfig.Consumer.VALUE_DESERIALIZER, useMessageJsonSerializer
+                ? MessageJsonDeserializer.class.getName()
+                : StringDeserializer.class.getName());
 
         //  An id string to pass to the server when making requests
         properties.put(KafkaConfig.Consumer.CLIENT_ID, clientId);
@@ -169,10 +182,13 @@ class Configuration {
             properties.put(KafkaConfig.Consumer.SESSION_TIMEOUT_MS, 10000);    // 10 seconds
 
             //  The class name of the partition assignment strategy that the client will use to distribute partition ownership amongst consumer instances when group management is used
-            properties.put(KafkaConfig.Consumer.PARTITION_ASSIGNMENT_STRATEGY, RangeAssignor.class.getName());    // 10 seconds
+            properties.put(KafkaConfig.Consumer.PARTITION_ASSIGNMENT_STRATEGY,
+                    useFirstGetsEverythingPartitionAssignor
+                    ? FirstGetsEverythingPartitionAssignor.class.getName()
+                    : RangeAssignor.class.getName());
 
             //  The maximum delay between invocations of poll() when using consumer group management
-            properties.put(KafkaConfig.Consumer.MAX_POLL_INTERVAL_MS, 300000);
+            properties.put(KafkaConfig.Consumer.MAX_POLL_INTERVAL_MS, 300000);  //5 minutes
         }
 
 
@@ -188,6 +204,10 @@ class Configuration {
 
         //  The maximum number of records returned in a single call to poll()
         properties.put(KafkaConfig.Consumer.MAX_POLL_RECORDS, 500);
+
+        /** CUSTOM SETTINGS **/
+        //  Tells the MessageJsonDeserializer what encoding to use for GSON serialization
+        properties.put(KafkaConfig.Consumer.VALUE_DESERIALIZER + ".encoding", "UTF8");
 
         return properties;
     }
