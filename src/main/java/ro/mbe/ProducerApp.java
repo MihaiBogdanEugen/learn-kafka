@@ -18,7 +18,7 @@ public class ProducerApp {
     public static void main(String[] args) {
 
         String clientId = (args != null && args.length > 0 && args[0].length() > 0) ? args[0] : UUID.randomUUID().toString();
-        Properties properties = Configuration.getProducerConfig(clientId);
+        Properties properties = Configuration.getProducerConfig(clientId, true);
 
         try (KafkaProducer<String, Message> producer = new KafkaProducer<>(properties)) {
             for (int index = 0; index < Configuration.NoOfRecordsToSend; index ++) {

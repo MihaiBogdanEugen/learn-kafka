@@ -7,6 +7,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.clients.producer.internals.DefaultPartitioner;
 import ro.mbe.custom.MessageJsonDeserializer;
 import ro.mbe.custom.MessageJsonSerializer;
+import ro.mbe.custom.SendToLastPartitioner;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,7 +51,7 @@ class Configuration {
     /**
      * https://kafka.apache.org/documentation/#producerconfigs
      */
-    static Properties getProducerConfig(String clientId) {
+    static Properties getProducerConfig(String clientId, boolean useSendToLastPartitioner) {
 
         Properties properties = new Properties();
 
@@ -75,7 +76,9 @@ class Configuration {
         properties.put(KafkaConfig.Producer.COMPRESSION_TYPE, KafkaConfig.Producer.CompressionType.NONE);
 
         //  Partitioner class that implements the Partitioner interface
-        properties.put(KafkaConfig.Producer.PARTITIONER_CLASS, DefaultPartitioner.class.getName());
+        properties.put(KafkaConfig.Producer.PARTITIONER_CLASS, useSendToLastPartitioner
+                ? SendToLastPartitioner.class.getName()
+                : DefaultPartitioner.class.getName());
 
 
         /** BATCHING SETTINGS **/
@@ -106,6 +109,10 @@ class Configuration {
 
         //  The maximum number of unacknowledged requests the client will send on a single connection before blocking
         properties.put(KafkaConfig.Producer.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 5);
+
+
+        /** CUSTOM SETTINGS **/
+        properties.put("default.partitioner.partition.value", 0);
 
         return properties;
     }
