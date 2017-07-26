@@ -24,7 +24,6 @@ class Configuration {
     static final int PollingTimeout = 1000;
     static final int NoOfRecordsToSend = 100;
     static final int NoOfRecordsToReceive = 100;
-    static final boolean UseSubsciptionMethod = false;
 
     static {
 
