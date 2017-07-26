@@ -19,27 +19,22 @@ class Configuration {
             "localhost:19103"
     };
 
-    static final Map<String, List<Integer>> TopicsAndPartitions = new HashMap<>();
-
     static final int PollingTimeout = 1000;
     static final int NoOfRecordsToSend = 100;
     static final int NoOfRecordsToReceive = 100;
-    static final boolean UseSubsciptionMethod = false;
 
+    static final Map<String, List<Integer>> TopicsAndPartitions = new HashMap<>();
     static {
-
         TopicsAndPartitions.put("sensors.first", Arrays.asList(0));
         TopicsAndPartitions.put("sensors.second", Arrays.asList(0, 1));
         TopicsAndPartitions.put("sensors.third", Arrays.asList(0, 1, 2));
     }
 
     static Collection<String> getAllTopics() {
-
         return TopicsAndPartitions.keySet();
     }
 
     static Collection<TopicPartition> getAllPartitions() {
-
         return Configuration.TopicsAndPartitions.entrySet()
                 .stream()
                 .flatMap(entry -> entry.getValue()
@@ -51,7 +46,7 @@ class Configuration {
     /**
      * https://kafka.apache.org/documentation/#producerconfigs
      */
-    static Properties getProducerConfig(String clientId) {
+    static Properties getProducerConfig(String clientId, boolean useMessageJsonSerializer) {
 
         Properties properties = new Properties();
 
@@ -64,7 +59,9 @@ class Configuration {
         properties.put(KafkaConfig.Producer.KEY_SERIALIZER, StringSerializer.class.getName());
 
         //  Serializer class for value
-        properties.put(KafkaConfig.Producer.VALUE_SERIALIZER, MessageJsonSerializer.class.getName());
+        properties.put(KafkaConfig.Producer.VALUE_SERIALIZER, (useMessageJsonSerializer)
+                ? MessageJsonSerializer.class.getName()
+                : StringSerializer.class.getName());
 
         //  An id string to pass to the server when making requests
         properties.put(KafkaConfig.Producer.CLIENT_ID, clientId);
@@ -108,13 +105,18 @@ class Configuration {
         //  The maximum number of unacknowledged requests the client will send on a single connection before blocking
         properties.put(KafkaConfig.Producer.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 5);
 
+
+        /** CUSTOM SETTINGS **/
+        //  Tells the MessageJsonSerializer what encoding to use for GSON serialization
+        properties.put(KafkaConfig.Producer.VALUE_SERIALIZER + ".encoding", "UTF8");
+
         return properties;
     }
 
     /**
      * https://kafka.apache.org/documentation/#consumerconfigs
      */
-    static Properties getConsumerConfig(String clientId, String groupId) {
+    static Properties getConsumerConfig(String clientId, String groupId, boolean useMessageJsonSerializer) {
 
         Properties properties = new Properties();
 
@@ -127,7 +129,9 @@ class Configuration {
         properties.put(KafkaConfig.Consumer.KEY_DESERIALIZER, StringDeserializer.class.getName());
 
         //  Deserializer class for value
-        properties.put(KafkaConfig.Consumer.VALUE_DESERIALIZER, MessageJsonDeserializer.class.getName());
+        properties.put(KafkaConfig.Consumer.VALUE_DESERIALIZER, useMessageJsonSerializer
+                ? MessageJsonDeserializer.class.getName()
+                : StringDeserializer.class.getName());
 
         //  An id string to pass to the server when making requests
         properties.put(KafkaConfig.Consumer.CLIENT_ID, clientId);
@@ -188,6 +192,10 @@ class Configuration {
 
         //  The maximum number of records returned in a single call to poll()
         properties.put(KafkaConfig.Consumer.MAX_POLL_RECORDS, 500);
+
+        /** CUSTOM SETTINGS **/
+        //  Tells the MessageJsonDeserializer what encoding to use for GSON serialization
+        properties.put(KafkaConfig.Consumer.VALUE_DESERIALIZER + ".encoding", "UTF8");
 
         return properties;
     }
