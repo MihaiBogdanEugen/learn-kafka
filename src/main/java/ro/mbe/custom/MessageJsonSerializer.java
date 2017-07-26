@@ -3,6 +3,7 @@ package ro.mbe.custom;
 import com.google.gson.Gson;
 import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.Serializer;
+import ro.mbe.KafkaConfig;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
@@ -10,7 +11,8 @@ import java.util.Map;
 public class MessageJsonSerializer implements Serializer<Message> {
 
     private static final Gson GSON = new Gson();
-    private static final String ENCODING = "UTF8";
+
+    private String encoding = "UTF8";
 
     /**
      * Convert {@code data} into a byte array.
@@ -28,7 +30,7 @@ public class MessageJsonSerializer implements Serializer<Message> {
 
         try {
             String messageAsString = GSON.toJson(data);
-            return messageAsString.getBytes(ENCODING);
+            return messageAsString.getBytes(this.encoding);
         } catch (UnsupportedEncodingException e) {
             throw new SerializationException("Error when serializing JSON string to byte[] due to unsupported UTF-8 encoding");
         }
@@ -42,7 +44,22 @@ public class MessageJsonSerializer implements Serializer<Message> {
      */
     @Override
     public void configure(Map<String, ?> configs, boolean isKey) {
-        //do nothing
+
+        Object encodingValue = configs.get(isKey
+                ? KafkaConfig.Producer.KEY_SERIALIZER + ".encoding"
+                : KafkaConfig.Producer.VALUE_SERIALIZER + ".encoding");
+
+        if (encodingValue == null) {
+            encodingValue = configs.get("serializer.encoding");
+        }
+
+        if (encodingValue == null) {
+            encodingValue = configs.get("deserializer.encoding");
+        }
+
+        if (encodingValue != null && encodingValue instanceof String) {
+            this.encoding = (String) encodingValue;
+        }
     }
 
     /**
