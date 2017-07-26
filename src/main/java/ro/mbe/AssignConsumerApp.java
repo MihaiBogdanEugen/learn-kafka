@@ -22,7 +22,7 @@ public class AssignConsumerApp  {
 
         String clientId = (args != null && args.length > 0 && args[0].length() > 0) ? args[0] : UUID.randomUUID().toString();
         String groupId = (args != null && args.length > 1 && args[1].length() > 0) ? args[1] : UUID.randomUUID().toString();
-        Properties properties = Configuration.getConsumerConfig(clientId, groupId, true);
+        Properties properties = Configuration.getConsumerConfig(clientId, groupId, true, true);
 
         try (KafkaConsumer<String, Message> consumer = new KafkaConsumer<>(properties)) {
 

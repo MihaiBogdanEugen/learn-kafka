@@ -5,6 +5,7 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.clients.producer.internals.DefaultPartitioner;
+import ro.mbe.custom.FirstGetsEverythingPartitionAssignor;
 import ro.mbe.custom.MessageJsonDeserializer;
 import ro.mbe.custom.MessageJsonSerializer;
 import ro.mbe.custom.SendToLastPartitioner;
@@ -124,7 +125,7 @@ class Configuration {
     /**
      * https://kafka.apache.org/documentation/#consumerconfigs
      */
-    static Properties getConsumerConfig(String clientId, String groupId, boolean useMessageJsonSerializer) {
+    static Properties getConsumerConfig(String clientId, String groupId, boolean useMessageJsonSerializer, boolean useFirstGetsEverythingPartitionAssignor) {
 
         Properties properties = new Properties();
 
@@ -181,10 +182,13 @@ class Configuration {
             properties.put(KafkaConfig.Consumer.SESSION_TIMEOUT_MS, 10000);    // 10 seconds
 
             //  The class name of the partition assignment strategy that the client will use to distribute partition ownership amongst consumer instances when group management is used
-            properties.put(KafkaConfig.Consumer.PARTITION_ASSIGNMENT_STRATEGY, RangeAssignor.class.getName());    // 10 seconds
+            properties.put(KafkaConfig.Consumer.PARTITION_ASSIGNMENT_STRATEGY,
+                    useFirstGetsEverythingPartitionAssignor
+                    ? FirstGetsEverythingPartitionAssignor.class.getName()
+                    : RangeAssignor.class.getName());
 
             //  The maximum delay between invocations of poll() when using consumer group management
-            properties.put(KafkaConfig.Consumer.MAX_POLL_INTERVAL_MS, 300000);
+            properties.put(KafkaConfig.Consumer.MAX_POLL_INTERVAL_MS, 300000);  //5 minutes
         }
 
 
