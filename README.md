@@ -128,8 +128,13 @@ $KAFKA_HOME/bin/kafka-console-consumer.sh \
 mvn clean package
 mvn exec:java -Dexec.mainClass="ro.mbe.ProducerApp" -Dexec.args="my-producer-app"
 ```
-## 9. Run the ConsumerApp
+## 9. Run the AssignConsumerApp
 ```shell
 mvn clean package
-mvn exec:java -Dexec.mainClass="ro.mbe.ConsumerApp" -Dexec.args="my-consumer-app"
+mvn exec:java -Dexec.mainClass="ro.mbe.AssignConsumerApp" -Dexec.args="my-assign-consumer-app"
+```
+## 10. Run the SubscribeConsumerApp
+```shell
+mvn clean package
+mvn exec:java -Dexec.mainClass="ro.mbe.SubscribeConsumerApp" -Dexec.args="my-subscribe-consumer-app"
 ```
