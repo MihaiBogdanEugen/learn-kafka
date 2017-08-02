@@ -15,7 +15,7 @@
 
     <name>learning-kafka</name>
     <url>https://github.com/MihaiBogdanEugen/learning-kafka</url>
-    <description>Simple Apache Kafka producer app</description>
+    <description>Small apps helping me to learn Apache Kafka</description>
 
     <licenses>
         <license>
