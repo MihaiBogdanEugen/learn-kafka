@@ -1,4 +1,4 @@
-package ro.mbe;
+package ro.mbe.common;
 
 /**
  * More information in the following classes:
