@@ -1,0 +1,3 @@
+apply plugin: 'java-library'
+
+description = 'Common stuff for the other samples to use'
