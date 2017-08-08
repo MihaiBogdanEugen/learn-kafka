@@ -1,12 +1,12 @@
-package ro.mbe;
+package ro.mbe.learn.kafka.producers;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ro.mbe.common.KafkaConfig;
-import ro.mbe.common.Setup;
+import ro.mbe.learn.kafka.commons.KafkaConfig;
+import ro.mbe.learn.kafka.commons.Setup;
 
 import java.util.List;
 import java.util.Map;

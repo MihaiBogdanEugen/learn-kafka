@@ -1,4 +1,4 @@
-package ro.mbe.common;
+package ro.mbe.learn.kafka.commons;
 
 /**
  * More information in the following classes:
@@ -651,3 +651,4 @@ public class KafkaConfig {
         public static final String WORKER_UNSYNC_BACKOFF_MS = "worker.unsync.backoff.ms";
     }
 }
+

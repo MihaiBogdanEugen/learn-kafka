@@ -1,4 +1,4 @@
-package ro.mbe.common;
+package ro.mbe.learn.kafka.commons;
 
 import org.apache.kafka.common.TopicPartition;
 
@@ -37,3 +37,4 @@ public class Setup {
                 .collect(Collectors.toList());
     }
 }
+

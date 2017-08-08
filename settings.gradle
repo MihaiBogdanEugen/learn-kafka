@@ -1,0 +1,5 @@
+rootProject.name = 'learn-kafka'
+
+include 'commons'
+include 'simple-producer'
+
