@@ -84,18 +84,3 @@ public class CustomBatchingProducerApp {
         return properties;
     }
 }
-
-//The message is 18874551 bytes when serialized which is larger than the total memory buffer you have configured with
-// the buffer.memory configuration.
-//org.apache.kafka.common.errors.RecordTooLargeException: The message is 18874551 bytes when serialized which is larger
-// than the total memory buffer you have configured with the buffer.memory configuration.
-
-//ERROR 2017-08-09 19:18:27 ro.mbe.learn.kafka.producers.CustomBatchingProducerApp.lambda$main$0(CustomBatchingProducerApp.java:56) -
-// The message is 18874550 bytes when serialized which is larger than the maximum request size you have configured with
-// the max.request.size
-// configuration.org.apache.kafka.common.errors.RecordTooLargeException:
-// The message is 18874550 bytes when serialized which is larger than the maximum request size you have configured with
-// the max.request.size configuration.
-
-//18874551
-//18874550
