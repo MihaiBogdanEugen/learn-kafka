@@ -1,0 +1,13 @@
+apply plugin : 'application'
+
+mainClassName = 'ro.mbe.learn.kafka.producers.CustomProducerApp'
+
+description = 'A custom Kafka producer that sends records with value of Message and that uses a custom partitioner'
+
+dependencies {
+    compile project(':commons')
+    compile 'org.slf4j:slf4j-api:1.7.25'
+    compile 'org.apache.logging.log4j:log4j-api:2.8.2'
+    compile 'org.apache.logging.log4j:log4j-core:2.8.2'
+    compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.8.2'
+}
