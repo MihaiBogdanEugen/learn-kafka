@@ -13,10 +13,6 @@ public class Setup {
             "localhost:19103"
     };
 
-    public static final int PollingTimeout = 1000;
-    public static final int NoOfRecordsToSend = 100;
-    public static final int NoOfRecordsToReceive = 100;
-
     public static final Map<String, List<Integer>> TopicsAndPartitions = new HashMap<>();
     static {
         TopicsAndPartitions.put("sensors.first", Arrays.asList(0));

@@ -9,17 +9,17 @@ import org.slf4j.LoggerFactory;
 import ro.mbe.learn.kafka.commons.Constants;
 import ro.mbe.learn.kafka.commons.KafkaConfig;
 import ro.mbe.learn.kafka.commons.Setup;
-import ro.mbe.learn.kafka.custom.MessageJsonSerializer;
 import ro.mbe.learn.kafka.custom.Message;
+import ro.mbe.learn.kafka.custom.MessageJsonSerializer;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
-public class CustomProducerApp {
+public class TransactionalProducerApp {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CustomProducerApp.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionalProducerApp.class);
 
     public static void main(String[] args) {
 
@@ -27,10 +27,23 @@ public class CustomProducerApp {
                 ? args[0]
                 : UUID.randomUUID().toString();
 
-        Properties properties = getProducerProperties(clientId);
+        String transactionalId = UUID.randomUUID().toString();
+
+        Properties properties = getProducerProperties(clientId, transactionalId);
 
         try (KafkaProducer<String, Message> producer = new KafkaProducer<>(properties)) {
+
+            producer.initTransactions();
+            producer.beginTransaction();
+
             for (int index = 0; index < Constants.NoOfRecordsToSend; index ++) {
+
+                if ((index + 1) % Constants.NoOfRecordsInTransaction == 0) {
+                    LOGGER.info("Commiting transaction...");
+                    producer.commitTransaction();
+                    producer.beginTransaction();
+                }
+
                 for (Map.Entry<String, List<Integer>> entry : Setup.TopicsAndPartitions.entrySet()) {
 
                     int noOfPartitions = entry.getValue().size();
@@ -51,10 +64,14 @@ public class CustomProducerApp {
                                     metadata.offset(), metadata.topic(), metadata.partition()));
                         } else {
                             LOGGER.error(error.getMessage(), error);
+                            producer.abortTransaction();
                         }
                     });
                 }
             }
+
+            producer.commitTransaction();
+
         } catch (Exception error) {
             LOGGER.error(error.getMessage(), error);
         }
@@ -62,17 +79,14 @@ public class CustomProducerApp {
         System.out.println("DONE!");
     }
 
-    private static Properties getProducerProperties(String clientId) {
+    private static Properties getProducerProperties(String clientId, String transactionalId) {
 
         Properties properties = new Properties();
         properties.put(KafkaConfig.Producer.BOOTSTRAP_SERVERS, String.join(", ", Setup.KafkaServers));
         properties.put(KafkaConfig.Producer.KEY_SERIALIZER, StringSerializer.class.getName());
         properties.put(KafkaConfig.Producer.VALUE_SERIALIZER, MessageJsonSerializer.class.getName());
         properties.put(KafkaConfig.Producer.CLIENT_ID, clientId);
-
-        //  Tells the MessageJsonSerializer what encoding to use for GSON serialization
-        properties.put(KafkaConfig.Producer.VALUE_SERIALIZER + ".encoding", "UTF8");
-
+        properties.put(KafkaConfig.Producer.TRANSACTIONAL_ID, transactionalId);
         return properties;
     }
 }
