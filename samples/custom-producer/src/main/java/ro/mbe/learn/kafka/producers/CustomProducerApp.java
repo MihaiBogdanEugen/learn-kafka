@@ -2,6 +2,7 @@ package ro.mbe.learn.kafka.producers;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,7 @@ public class CustomProducerApp {
         Properties properties = getProducerProperties(clientId);
 
         try (KafkaProducer<String, Message> producer = new KafkaProducer<>(properties)) {
-            for (int index = 0; index < Setup.NoOfRecordsToSend; index ++) {
+            for (int index = 0; index < Constants.NoOfRecordsToSend; index ++) {
                 for (Map.Entry<String, List<Integer>> entry : Setup.TopicsAndPartitions.entrySet()) {
 
                     int noOfPartitions = entry.getValue().size();
@@ -43,7 +44,7 @@ public class CustomProducerApp {
                             ? new ProducerRecord<>(topic, key, value)
                             : new ProducerRecord<>(topic, partition, key, value);
 
-                    producer.send(record, (metadata, error) -> {
+                    producer.send(record, (RecordMetadata metadata, Exception error) -> {
 
                         if (error == null) {
                             LOGGER.info(String.format(Constants.PATTERN_RECORD_SENT,
@@ -68,6 +69,10 @@ public class CustomProducerApp {
         properties.put(KafkaConfig.Producer.KEY_SERIALIZER, StringSerializer.class.getName());
         properties.put(KafkaConfig.Producer.VALUE_SERIALIZER, MessageJsonSerializer.class.getName());
         properties.put(KafkaConfig.Producer.CLIENT_ID, clientId);
+
+        //  Tells the MessageJsonSerializer what encoding to use for GSON serialization
+        properties.put(KafkaConfig.Producer.VALUE_SERIALIZER + ".encoding", "UTF8");
+
         return properties;
     }
 }
