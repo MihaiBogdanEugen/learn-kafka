@@ -54,10 +54,12 @@ public class SimpleProducerApp {
     private static Properties getProducerProperties(String clientId) {
 
         Properties properties = new Properties();
+
         properties.put(KafkaConfig.Producer.BOOTSTRAP_SERVERS, String.join(", ", Setup.KafkaServers));
         properties.put(KafkaConfig.Producer.KEY_SERIALIZER, StringSerializer.class.getName());
         properties.put(KafkaConfig.Producer.VALUE_SERIALIZER, StringSerializer.class.getName());
         properties.put(KafkaConfig.Producer.CLIENT_ID, clientId);
+
         return properties;
     }
 }

@@ -81,11 +81,13 @@ public class TransactionalProducerApp {
     private static Properties getProducerProperties(String clientId, String transactionalId) {
 
         Properties properties = new Properties();
+
         properties.put(KafkaConfig.Producer.BOOTSTRAP_SERVERS, String.join(", ", Setup.KafkaServers));
         properties.put(KafkaConfig.Producer.KEY_SERIALIZER, StringSerializer.class.getName());
         properties.put(KafkaConfig.Producer.VALUE_SERIALIZER, MessageJsonSerializer.class.getName());
         properties.put(KafkaConfig.Producer.CLIENT_ID, clientId);
         properties.put(KafkaConfig.Producer.TRANSACTIONAL_ID, transactionalId);
+
         return properties;
     }
 }

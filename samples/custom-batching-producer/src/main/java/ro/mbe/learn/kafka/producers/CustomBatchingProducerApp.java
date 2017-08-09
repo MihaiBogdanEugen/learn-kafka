@@ -3,7 +3,6 @@ package ro.mbe.learn.kafka.producers;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
-import org.apache.kafka.clients.producer.internals.DefaultPartitioner;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,16 +11,16 @@ import ro.mbe.learn.kafka.commons.KafkaConfig;
 import ro.mbe.learn.kafka.commons.Setup;
 import ro.mbe.learn.kafka.custom.MessageJsonSerializer;
 import ro.mbe.learn.kafka.custom.Message;
-import ro.mbe.learn.kafka.custom.SendToLastPartitionPartitioner;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
-public class CustomPartitionerProducerApp {
+public class CustomBatchingProducerApp {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CustomPartitionerProducerApp.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CustomBatchingProducerApp.class);
 
     public static void main(String[] args) {
 
@@ -35,16 +34,22 @@ public class CustomPartitionerProducerApp {
             for (int index = 0; index < Constants.NoOfRecordsToSend; index ++) {
                 for (Map.Entry<String, List<Integer>> entry : Setup.TopicsAndPartitions.entrySet()) {
 
-                    String topic = entry.getKey();
-                    String key = UUID.randomUUID().toString();
-                    Message value = new Message(index, UUID.randomUUID().toString());
+                    int noOfPartitions = entry.getValue().size();
 
-                    ProducerRecord<String, Message> record = new ProducerRecord<>(topic, key, value);
+                    String topic = entry.getKey();
+                    Integer partition = index % noOfPartitions;
+                    String key = UUID.randomUUID().toString();
+                    Message value = new Message(index, new String(new byte[1024], StandardCharsets.UTF_8));
+
+                    ProducerRecord<String, Message> record = (noOfPartitions == 1)
+                            ? new ProducerRecord<>(topic, key, value)
+                            : new ProducerRecord<>(topic, partition, key, value);
 
                     producer.send(record, (RecordMetadata metadata, Exception error) -> {
 
                         if (error == null) {
-                            LOGGER.info(String.format(Constants.PATTERN_RECORD_SENT, metadata.offset(), metadata.topic(), metadata.partition()));
+                            LOGGER.info(String.format(Constants.PATTERN_RECORD_SENT,
+                                    metadata.offset(), metadata.topic(), metadata.partition()));
                         } else {
                             LOGGER.error(error.getMessage(), error);
                         }
@@ -66,14 +71,31 @@ public class CustomPartitionerProducerApp {
         properties.put(KafkaConfig.Producer.KEY_SERIALIZER, StringSerializer.class.getName());
         properties.put(KafkaConfig.Producer.VALUE_SERIALIZER, MessageJsonSerializer.class.getName());
         properties.put(KafkaConfig.Producer.CLIENT_ID, clientId);
-        properties.put(KafkaConfig.Producer.PARTITIONER_CLASS, SendToLastPartitionPartitioner.class.getName());
+
+        properties.put(KafkaConfig.Producer.MAX_REQUEST_SIZE, 33554432);    // 32 MB
+        properties.put(KafkaConfig.Producer.BATCH_SIZE, 4194304);           // 4 MB
+        properties.put(KafkaConfig.Producer.BUFFER_MEMORY, 16777216);       // 16 MB
+        properties.put(KafkaConfig.Producer.MAX_BLOCK_MS, 30000);           // 30 seconds
+        properties.put(KafkaConfig.Producer.LINGER_MS, 60000);              // 60 seconds
 
         //  Tells the MessageJsonSerializer what encoding to use for GSON serialization
         properties.put(KafkaConfig.Producer.VALUE_SERIALIZER + ".encoding", "UTF8");
 
-        //  Tells the default partitioner the default value for the partitioning operation
-        properties.put("default.partitioner.partition.value", 0);
-
         return properties;
     }
 }
+
+//The message is 18874551 bytes when serialized which is larger than the total memory buffer you have configured with
+// the buffer.memory configuration.
+//org.apache.kafka.common.errors.RecordTooLargeException: The message is 18874551 bytes when serialized which is larger
+// than the total memory buffer you have configured with the buffer.memory configuration.
+
+//ERROR 2017-08-09 19:18:27 ro.mbe.learn.kafka.producers.CustomBatchingProducerApp.lambda$main$0(CustomBatchingProducerApp.java:56) -
+// The message is 18874550 bytes when serialized which is larger than the maximum request size you have configured with
+// the max.request.size
+// configuration.org.apache.kafka.common.errors.RecordTooLargeException:
+// The message is 18874550 bytes when serialized which is larger than the maximum request size you have configured with
+// the max.request.size configuration.
+
+//18874551
+//18874550
