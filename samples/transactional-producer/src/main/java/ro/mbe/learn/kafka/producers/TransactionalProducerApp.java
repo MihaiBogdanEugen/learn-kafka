@@ -53,15 +53,14 @@ public class TransactionalProducerApp {
                     String key = UUID.randomUUID().toString();
                     Message value = new Message(index, UUID.randomUUID().toString());
 
-                    ProducerRecord<String, Message> record = (entry.getValue().size() == 1)
+                    ProducerRecord<String, Message> record = (noOfPartitions == 1)
                             ? new ProducerRecord<>(topic, key, value)
                             : new ProducerRecord<>(topic, partition, key, value);
 
                     producer.send(record, (RecordMetadata metadata, Exception error) -> {
 
                         if (error == null) {
-                            LOGGER.info(String.format(Constants.PATTERN_RECORD_SENT,
-                                    metadata.offset(), metadata.topic(), metadata.partition()));
+                            LOGGER.info(String.format(Constants.PATTERN_RECORD_SENT, metadata.offset(), metadata.topic(), metadata.partition()));
                         } else {
                             LOGGER.error(error.getMessage(), error);
                             producer.abortTransaction();

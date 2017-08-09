@@ -7,7 +7,7 @@ import org.apache.kafka.common.PartitionInfo;
 import java.util.Map;
 
 /**
- * Simple partitioner that sends anything to the last available topic partition.
+ * Custom partitioner that sends anything to the last available topic partition.
  * If this is not used for (key.type=String.class,value.type=Message.class), then it returns the default (zero) partition.
  *
  */
