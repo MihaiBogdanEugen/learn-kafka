@@ -27,7 +27,7 @@ public class SimpleProducerApp {
         Properties properties = getProducerProperties(clientId);
 
         try (KafkaProducer<String, String> producer = new KafkaProducer<>(properties)) {
-            for (int index = 0; index < Setup.NoOfRecordsToSend; index ++) {
+            for (int index = 0; index < Constants.NoOfRecordsToSend; index ++) {
                 for (Map.Entry<String, List<Integer>> entry : Setup.TopicsAndPartitions.entrySet()) {
 
                     int noOfPartitions = entry.getValue().size();
@@ -41,15 +41,7 @@ public class SimpleProducerApp {
                             ? new ProducerRecord<>(topic, key, value)
                             : new ProducerRecord<>(topic, partition, key, value);
 
-                    producer.send(record, (metadata, error) -> {
-
-                        if (error == null) {
-                            LOGGER.info(String.format(Constants.PATTERN_RECORD_SENT,
-                                    metadata.offset(), metadata.topic(), metadata.partition()));
-                        } else {
-                            LOGGER.error(error.getMessage(), error);
-                        }
-                    });
+                    producer.send(record);
                 }
             }
         } catch (Exception error) {
