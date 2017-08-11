@@ -38,7 +38,7 @@ public class CustomProducerApp {
                     String topic = entry.getKey();
                     Integer partition = index % noOfPartitions;
                     String key = UUID.randomUUID().toString();
-                    Message value = new Message(index, UUID.randomUUID().toString());
+                    Message value = new Message(index, "A custom message, not only a string value");
 
                     ProducerRecord<String, Message> record = (noOfPartitions == 1)
                             ? new ProducerRecord<>(topic, key, value)

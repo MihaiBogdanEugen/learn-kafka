@@ -37,7 +37,7 @@ public class CustomPartitionerProducerApp {
 
                     String topic = entry.getKey();
                     String key = UUID.randomUUID().toString();
-                    Message value = new Message(index, UUID.randomUUID().toString());
+                    Message value = new Message(index, "If you don't specify the partition, everything will go to the last partition");
 
                     ProducerRecord<String, Message> record = new ProducerRecord<>(topic, key, value);
 

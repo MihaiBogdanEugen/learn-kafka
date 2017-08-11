@@ -56,7 +56,7 @@ public class TransactionalProducerApp {
                     String topic = entry.getKey();
                     Integer partition = index % noOfPartitions;
                     String key = UUID.randomUUID().toString();
-                    Message value = new Message(index, UUID.randomUUID().toString());
+                    Message value = new Message(index, "This message is sent in a transactional manner");
 
                     ProducerRecord<String, Message> record = (noOfPartitions == 1)
                             ? new ProducerRecord<>(topic, key, value)

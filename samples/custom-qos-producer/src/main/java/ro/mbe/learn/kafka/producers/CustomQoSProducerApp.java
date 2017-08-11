@@ -38,7 +38,7 @@ public class CustomQoSProducerApp {
                     String topic = entry.getKey();
                     Integer partition = index % noOfPartitions;
                     String key = UUID.randomUUID().toString();
-                    Message value = new Message(index, "This message can't be lost!");
+                    Message value = new Message(index, "This message can't be lost");
 
                     ProducerRecord<String, Message> record = (noOfPartitions == 1)
                             ? new ProducerRecord<>(topic, key, value)

@@ -25,6 +25,7 @@ public class SimpleProducerApp {
                 : UUID.randomUUID().toString();
 
         Properties properties = getProducerProperties(clientId);
+        String value = "A very simple message, for a very simple producer";
 
         try (KafkaProducer<String, String> producer = new KafkaProducer<>(properties)) {
             for (int index = 0; index < Constants.NoOfRecordsToSend; index ++) {
@@ -35,7 +36,6 @@ public class SimpleProducerApp {
                     String topic = entry.getKey();
                     Integer partition = index % noOfPartitions;
                     String key = UUID.randomUUID().toString();
-                    String value = UUID.randomUUID().toString();
 
                     ProducerRecord<String, String> record = (noOfPartitions == 1)
                             ? new ProducerRecord<>(topic, key, value)
