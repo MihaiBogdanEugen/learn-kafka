@@ -103,7 +103,7 @@ public class CustomBatchingProducerApp {
          * will send in a single request to avoid sending huge requests. This is also effectively a cap on the maximum
          * record batch size. Note that the server has its own cap on record batch size which may be different from this.
          */
-        properties.put(KafkaConfig.Producer.MAX_REQUEST_SIZE, 33554432);    // 32 MB
+        properties.put(KafkaConfig.Producer.MAX_REQUEST_SIZE, 1048576);    // 1 MB
 
         /**
          * The producer will attempt to batch records together into fewer requests whenever multiple records are being
@@ -118,7 +118,7 @@ public class CustomBatchingProducerApp {
          * batching entirely). A very large batch size may use memory a bit more wastefully as we will always allocate
          * a buffer of the specified batch size in anticipation of additional records.
          */
-        properties.put(KafkaConfig.Producer.BATCH_SIZE, 4194304);           // 4 MB
+        properties.put(KafkaConfig.Producer.BATCH_SIZE, 16777216);           // 16 MB
 
         /**
          * The total bytes of memory the producer can use to buffer records waiting to be sent to the server. If records
@@ -129,14 +129,14 @@ public class CustomBatchingProducerApp {
          * since not all memory the producer uses is used for buffering. Some additional memory will be used for
          * compression (if compression is enabled) as well as for maintaining in-flight requests.
          */
-        properties.put(KafkaConfig.Producer.BUFFER_MEMORY, 16777216);       // 16 MB
+        properties.put(KafkaConfig.Producer.BUFFER_MEMORY, 16777216);       // 32 MB
 
         /**
          * The configuration controls how long KafkaProducer.send() and KafkaProducer.partitionsFor() will block.These
          * methods can be blocked either because the buffer is full or metadata unavailable.Blocking in the
          * user-supplied serializers or partitioner will not be counted against this timeout.
          */
-        properties.put(KafkaConfig.Producer.MAX_BLOCK_MS, 30000);           // 30 seconds
+        properties.put(KafkaConfig.Producer.MAX_BLOCK_MS, 60000);           // 60 seconds
 
         /**
          * The producer groups together any records that arrive in between request transmissions into a single batched
@@ -152,7 +152,14 @@ public class CustomBatchingProducerApp {
          * of reducing the number of requests sent but would add up to 5ms of latency to records sent in the absense of
          * load.
          */
-        properties.put(KafkaConfig.Producer.LINGER_MS, 60000);              // 60 seconds
+        properties.put(KafkaConfig.Producer.LINGER_MS, 1000);              // no delay
+
+        /**
+         * Specify the final compression type for a given topic. This configuration accepts the standard compression
+         * codecs ('gzip', 'snappy', 'lz4'). It additionally accepts 'uncompressed' which is equivalent to no
+         * compression; and 'producer' which means retain the original compression codec set by the producer.
+         */
+        properties.put(KafkaConfig.Producer.COMPRESSION_TYPE, KafkaConfig.Broker.CompressionType.GZIP);
 
         return properties;
     }
