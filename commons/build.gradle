@@ -1,0 +1,7 @@
+apply plugin: 'java-library'
+
+description = 'Common stuff for the other samples to use'
+
+dependencies {
+    compile 'com.google.code.gson:gson:2.8.1'
+}
