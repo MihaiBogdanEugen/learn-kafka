@@ -62,16 +62,46 @@ public class CustomPartitionerProducerApp {
 
         Properties properties = new Properties();
 
+        /**
+         * A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. The client will
+         * make use of all servers irrespective of which servers are specified here for bootstrapping—this list only
+         * impacts the initial hosts used to discover the full set of servers. This list should be in the form
+         * host1:port1,host2:port2,.... Since these servers are just used for the initial connection to discover the full
+         * cluster membership (which may change dynamically), this list need not contain the full set of servers (you
+         * may want more than one, though, in case a server is down).
+         */
         properties.put(KafkaConfig.Producer.BOOTSTRAP_SERVERS, String.join(", ", Setup.KafkaServers));
+
+        /**
+         * Serializer class for key that implements the Serializer interface.
+         */
         properties.put(KafkaConfig.Producer.KEY_SERIALIZER, StringSerializer.class.getName());
+
+        /**
+         * Serializer class for value that implements the Serializer interface.
+         */
         properties.put(KafkaConfig.Producer.VALUE_SERIALIZER, MessageJsonSerializer.class.getName());
+
+        /**
+         * An id string to pass to the server when making requests. The purpose of this is to be able to track the source
+         * of requests beyond just ip/port by allowing a logical application name to be included in server-side request
+         * logging.
+         */
         properties.put(KafkaConfig.Producer.CLIENT_ID, clientId);
+
+        /**
+         * Partitioner class that implements the Partitioner interface.
+         */
         properties.put(KafkaConfig.Producer.PARTITIONER_CLASS, SendToLastPartitionPartitioner.class.getName());
 
-        //  Tells the MessageJsonSerializer what encoding to use for GSON serialization
+        /**
+         * Custom setting: Tells the MessageJsonSerializer what encoding to use for GSON serialization
+         */
         properties.put(KafkaConfig.Producer.VALUE_SERIALIZER + ".encoding", "UTF8");
 
-        //  Tells the default partitioner the default value for the partitioning operation
+        /**
+         * Custom setting: Tells the default partitioner the default value for the partitioning operation
+         */
         properties.put("default.partitioner.partition.value", 0);
 
         return properties;
